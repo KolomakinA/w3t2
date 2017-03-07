@@ -1,27 +1,35 @@
 package com.company;
 
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * Created by kolom on 07.03.2017.
  */
 public class Deck {
-    private Card[] deck;
+
+    private Card[] deck ;
+    private int cardsLeft;
+
     public Deck() {
         deck = new Card[36];
-        initialize();
+        cardsLeft = 36;
+        createDeck();
     }
 
-    private void initialize(){
+    private void createDeck(){
         int rcount = 0;
         int scount = 0;
         for (int i = 0; i < deck.length; i++) {
             deck[i] = new Card(getRank(rcount), getSuit(scount));
-            scount++;
-            if (i !=0 && scount%4 == 0) {
-                scount = 0;
-                rcount++;
-            }
+            rcount++;
+            if (i !=0 && rcount%9 == 0) {
+                rcount = 0;
+                scount++;
             }
         }
+    }
+
     private Rank getRank(int rcount){
         switch (rcount){
             case 0:
@@ -45,55 +53,53 @@ public class Deck {
         }
         return null;
     }
+
     private Suit getSuit(int scount){
         switch (scount){
             case 0:
-                return Suit.CLUBS;
+                return Suit.HEARTS;
             case 1:
                 return Suit.DIAMONDS;
             case 2:
-                return Suit.HEARTS;
+                return Suit.CLUBS;
             case 3:
                 return Suit.SPADES;
         }
         return null;
     }
 
-    public String toString(int i){
-        return "Rank: " + deck[i].getRank().getName() +", Suit: "+  deck[i].getSuit().getName();
-    }
+//    public String toString(int i){
+//        return "Rank: " + deck[i].getRank().getName() +", Suit: "+  deck[i].getSuit().getName();
+//    }//REMOVE
 
     public void shuffle() {
-        //Перемішує колоду у випадковому порядку
+        Random rnd = ThreadLocalRandom.current();
+        for (int j = 0; j < 3; j++) {
+            for (int i = deck.length - 1; i > 0; i--){
+                int index = rnd.nextInt(i + 1);
+                Card a = deck[index];
+                deck[index] = deck[i];
+                deck[i] = a;
+            }
+        }
     }
 
     public void order() {
-                /* * Впорядкування колоди за мастями та значеннями
-    * Порядок сотрування:
-    * Спочатку всі карти з мастю HEARTS, потім DIAMONDS, CLUBS, SPADES
-    * для кожної масті порядок наступний: Ace,King,Queen,Jack,10,9,8,7,6
-    * Наприклад
-    * HEARTS Ace
-    * HEARTS King
-    * HEARTS Queen
-    * HEARTS Jack
-    * HEARTS 10
-    * HEARTS 9
-    * HEARTS 8
-    * HEARTS 7
-    * HEARTS 6
-    * І так далі для DIAMONDS, CLUBS, SPADES */
+        createDeck();
     }
 
+    public boolean hasNext() {
+        if (cardsLeft > 0)
+            return true;
+        else return false;
+    }
 
-//    public boolean hasNext() {
-//        //Повертає true у випадку коли в колоді ще доступні карти
-//    }
-//
-//
-//    public Card drawOne() {
-//        //"Виймає" одну карту з колоди, коли буде видано всі 36 карт повертає null
-//        //Карти виймаються з "вершини" колоди. Наприклад перший виклик видасть SPADES 6 потім
-//        //SPADES 7, ..., CLUBS 6, ..., CLUBS Ace і так далі до HEARTS Ace
-//    }
+    public Card drawOne() {
+        if(cardsLeft==0) return null;
+        else {
+            cardsLeft--;
+            return deck[cardsLeft];
+        }
+
+    }
 }
